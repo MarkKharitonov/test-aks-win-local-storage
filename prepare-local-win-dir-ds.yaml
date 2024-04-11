@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: prepare-local-win-dir
+  namespace: test-win
+  labels:
+    app: prepare-local-win-dir
+spec:
+  selector:
+    matchLabels:
+      app: prepare-local-win-dir
+  template:
+    metadata:
+      labels:
+        app: prepare-local-win-dir
+    spec:
+      securityContext:
+        windowsOptions:
+          hostProcess: true
+          runAsUserName: "NT AUTHORITY\\SYSTEM"
+      hostNetwork: true
+      containers:
+        - name: main
+          image: mcr.microsoft.com/windows/servercore:ltsc2022
+          command:
+            - powershell.exe
+            - -Command
+            - "& { if (!(Test-Path /6b7f0a2c5e3047fda5331c472feff035)){ mkdir /6b7f0a2c5e3047fda5331c472feff035 } ; Start-Sleep 2147483 }"
+      nodeSelector:
+        agentpool: win
+      tolerations:
+        - effect: NoSchedule
+          key: dedicated
+          operator: Equal
+          value: win
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot

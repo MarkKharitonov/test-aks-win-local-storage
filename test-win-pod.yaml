@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    linkerd.io/inject: disabled
+  labels:
+    run: test-win
+  name: test-win
+  namespace: test-win
+spec:
+  containers:
+    - name: test-win
+      image: mcr.microsoft.com/dotnet/framework/sdk:4.8.1
+      command:
+        - powershell
+        - -ExecutionPolicy
+        - Unrestricted
+        - -Command
+        - "Start-Sleep -Seconds 36000"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          cpu: 500m
+          memory: 256Mi
+      volumeMounts:
+        - mountPath: "/data"
+          name: local
+  volumes:
+    - name: local
+      persistentVolumeClaim:
+        claimName: local-win
